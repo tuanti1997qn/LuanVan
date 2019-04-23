@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- run the map server -->
+    <!-- <group ns="robot1"> -->
+    <!-- <arg name="my_map" default="$(find my_test_gmappng)/maps/my_lab.yaml"/> -->
+    <arg name="my_map" default="$(find my_test_gmappng)/maps/map.yaml"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(arg my_map)" >
+        <remap from="map" to="/map"/>
+        <remap from="map_metadata" to="/map_metadata"/>
+        <param name="frame_id" value="/map"/>
+    </node>
+     <!-- </group> -->
+</launch>
