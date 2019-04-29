@@ -6,10 +6,10 @@ publish_frequency: 1.0
 inflation_layer:
   inflation_radius: 0.5
 
-obstacle_layer:
-  observation_sources: hokuyo_laser
-  hokuyo_laser: {sensor_frame: hokuyo_base_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
-  
+# obstacle_layer:
+#   observation_sources: hokuyo_laser
+  # hokuyo_laser: {sensor_frame: hokuyo_base_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+
 static:
   map_topic: /map
   subscribe_to_updates: true
