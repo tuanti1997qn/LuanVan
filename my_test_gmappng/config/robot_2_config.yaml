@@ -1,9 +1,11 @@
-obstacle_layer:
-  observation_sources: hokuyo_laser
-  hokuyo_laser: {sensor_frame: /robot2/base_scan, data_type: LaserScan, topic: /robot2/scan, marking: true, clearing: true}
+#obstacle_layer:
+observation_sources: my_laser_2
+my_laser_2: {sensor_frame: /robot2/base_scan, data_type: LaserScan, topic: /robot2/scan, marking: true, clearing: true}
 
 DWAPlannerROS:
-  global_frame_id: /robot2/odom
+  # global_frame_id: /robot2/odom
+  global_frame_id: /map
+
 
 global_costmap:
 
@@ -11,5 +13,6 @@ global_costmap:
 
 local_costmap:
 
-  global_frame: /robot2/odom
+  # global_frame: /robot2/odom
+  global_frame: /map
   robot_base_frame: /robot2/base_footprint

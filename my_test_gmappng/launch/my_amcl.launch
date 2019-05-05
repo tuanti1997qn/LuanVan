@@ -65,7 +65,7 @@
 
       <param name="base_frame_id" value="/$(arg robotname)/base_footprint"/> -->
 
-            <param name="odom_frame_id" value="/robot1/odom"/>
+      <param name="odom_frame_id" value="/robot1/odom"/>
 
       <param name="base_frame_id" value="/robot1/base_footprint"/>
 
@@ -100,13 +100,13 @@
 
 ​
 
-            <!-- <remap from="scan" to="/robot1/scan" /> -->
+                        <!-- <remap from="scan" to="/robot1/scan" /> -->
 
       <!-- <remap from="cmd_vel" to="/summit_xl_controller/cmd_vel"/> -->
 
 ​
 
-                                <!-- Publish scans from best pose at a max of 10 Hz -->
+                                            <!-- Publish scans from best pose at a max of 10 Hz -->
 
       <param name="odom_model_type" value="diff"/>
 

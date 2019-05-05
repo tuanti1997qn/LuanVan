@@ -27,7 +27,9 @@
       <param name="controller_frequency" value="5.0" />
       <param name="controller_patience" value="15.0" />
 
-      <remap from="cmd_vel" to="c_cmd_vel"/>
+      <remap from="map" to="/map"/>
+
+      <!-- <remap from="cmd_vel" to="c_cmd_vel"/> -->
     </node>
   </group>
 
@@ -54,7 +56,11 @@
       <param name="controller_frequency" value="5.0" />
       <param name="controller_patience" value="15.0" />
 
-      <remap from="cmd_vel" to="c_cmd_vel"/>
+      <remap from="map" to="/map"/>
+
+      <!-- <remap from="cmd_vel" to="c_cmd_vel"/> -->
+
+
     </node>
   </group>
 </launch>
