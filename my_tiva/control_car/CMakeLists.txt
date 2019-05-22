@@ -20,6 +20,8 @@ generate_tivac_firmware(
     lib/my_PID.c
     lib/my_pwm.c
     lib/my_timer.c
+    lib/my_imu.c
+    lib/my_math.c
   INCS 
     .
     inc

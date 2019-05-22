@@ -1,26 +1,27 @@
-#if !defined(__MY_PID__)
+#ifndef __MY_PID__
 #define __MY_PID__
 
 #include "my_pwm.h"
-#define XE_1
+#include "my_def.h"
+#include "my_math.h"
 // vi hoi lam bieng nen phan tinhs tf transform se quang vao day luon
 
 
-#define MY_PI 3.1415926535897 // so pi :V
+
 #define T 0.01
 
 #ifdef XE_1
 #define XMV 1496              // xung moi vong 374*4(do tiva * 4)
 #define CVB 0.195             // chu vi banh 6.2 cm
 #define D2W 0.172              // distance 2 wheel
-#define OFF_SET 0          // offset xung PWM 20% de chong vung chet
+#define OFF_SET 7          // offset xung PWM 7% de chong vung chet
 #endif
 
 #ifdef XE_2
 #define XMV 1496              // xung moi vong 374*4(do tiva * 4)
 #define CVB 0.2             // chu vi banh 7 cm
 #define D2W 0.195              // distance 2 wheel
-#define OFF_SET 1          // offset xung PWM 20% de chong vung chet
+#define OFF_SET 7          // offset xung PWM 7% de chong vung chet
 #endif
 
 typedef struct
@@ -44,13 +45,7 @@ typedef struct
     float z;
 } my_pos_angular_euler;
 
-typedef struct
-{
-    float x;
-    float y;
-    float z;
-    float w;
-} Quaterniond;
+
 
 typedef struct
 {
@@ -71,6 +66,9 @@ void my_PID_set_vel(float linear, float angular);
 
 Quaterniond my_pos_get_Quaternion(void);
 my_pos my_pos_get_pos(void);
+void my_pos_set_pos(my_pos update_pos);
+void my_pos_set_theta(float new_theta);
+void my_pos_set_theta_fq(Quaterniond q);
 
 float my_debug_fnc(void);
 

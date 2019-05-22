@@ -9,6 +9,8 @@ extern "C"
 #include "inc/main.h"
 #include "inc/my_pwm.h"
 #include "inc/my_PID.h"
+#include "inc/my_imu.h"
+#include "inc/my_math.h"
 }
 // ROS includes
 #include <ros.h>
@@ -16,8 +18,7 @@ extern "C"
 #include <geometry_msgs/Twist.h>
 #include <ros/time.h>
 #include <tf/transform_broadcaster.h>
-
-#define XE_1
+#include "inc/my_def.h"
 
 void my_sub_vel_callback(const geometry_msgs::Twist &msg);
 
@@ -33,6 +34,7 @@ ros::Publisher chatter("chatter", &str_msg);
 char hello[13] = "Hello world!";
 char my_debug[50];
 double my_ex_debug;
+int start = 0;
 
 // tf
 geometry_msgs::TransformStamped t;
@@ -41,13 +43,15 @@ tf::TransformBroadcaster broadcaster;
 #ifdef XE_1
 char base_link[] = "/robot1/base_footprint";
 char odom[] = "/robot1/odom";
+// char base_link[] = "base_footprint";
+// char odom[] = "odom";
 #endif
 #ifdef XE_2
 char base_link[] = "/robot2/base_footprint";
 char odom[] = "/robot2/odom";
 #endif
 my_pos my_car_pos;
-Quaterniond my_car_quaternion;
+Quaterniond my_car_quaternion, q_temp_O, q_temp_I;
 
 huong dir = toi;
 
@@ -74,7 +78,7 @@ int main(void)
 
     // mypwm_setpwm(right_motor, 80, dir);
     // mypwm_setpwm(left_motor, 80, dir);
-
+    nh.getHardware()->delay(30);
     while (1)
     {
         // // Publish message to be transmitted.
@@ -106,7 +110,36 @@ int main(void)
         // Publish message to be transmitted.
 
         my_car_pos = my_pos_get_pos();
+#ifndef USE_IMU
         my_car_quaternion = my_pos_get_Quaternion();
+#endif
+#ifdef USE_IMU
+        if (start == 0)
+        {
+            start = 1;
+            my_car_quaternion = imu_getQuaterniond();
+            my_pos_set_theta(imu_getTheta());
+        }
+        q_temp_O = my_pos_get_Quaternion();
+        q_temp_I = imu_getQuaterniond();
+
+#ifdef USE_COMP_FILTER
+        float alpha = 0.5;
+        my_car_quaternion.w = (my_car_quaternion.w + q_temp_O.w) * alpha + q_temp_I.w * (1 - alpha);
+        my_car_quaternion.z = (my_car_quaternion.z + q_temp_O.z) * alpha + q_temp_I.z * (1 - alpha);
+        my_pos_set_theta_fq(my_car_quaternion);
+#endif
+
+#ifndef USE_COMP_FILTER
+        // my_car_pos.theta = imu_getTheta();
+        my_car_quaternion = q_temp_I;
+        my_pos_set_theta(imu_getTheta());
+#endif
+
+#endif
+
+        // imu_getQuaterniond();
+        // imu_getTheta();
 
         t.header.frame_id = odom;
         t.child_frame_id = base_link;
@@ -128,12 +161,11 @@ int main(void)
         // str_msg.data = my_debug;
         // chatter.publish(&str_msg);
 
-
         // Handle all communications and callbacks.
         nh.spinOnce();
 
         // Delay for a bit.
-        nh.getHardware()->delay(100);
+        nh.getHardware()->delay(30);
     }
 }
 
@@ -142,10 +174,22 @@ int main(void)
 void my_sub_vel_callback(const geometry_msgs::Twist &msg)
 {
     float my_linear_var, my_angular_var;
-    my_linear_var = msg.linear.x;
+    if (msg.linear.x == 0)
+    {
+        my_linear_var = 0;
+    }
+    else if (msg.linear.x > 0)
+    {
+        my_linear_var = msg.linear.x + 0.01;
+    }
+    else
+    {
+        my_linear_var = msg.linear.x - 0.01;
+    }
+
     my_angular_var = msg.angular.z;
     my_PID_set_vel(my_linear_var, my_angular_var);
-    sprintf(my_debug, "toc do di thang get duoc: %f", my_linear_var);
+    // sprintf(my_debug, "toc do di thang get duoc: %f", my_linear_var);
     // my_PID_set_vel_left_sp(temp);
     // my_PID_set_vel_right_sp(temp);
 

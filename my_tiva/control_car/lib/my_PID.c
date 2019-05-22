@@ -156,6 +156,24 @@ my_pos my_pos_get_pos(void)
 {
     return pos;
 }
+
+void my_pos_set_pos(my_pos update_pos)
+{
+    pos = update_pos;
+}
+
+void my_pos_set_theta(float new_theta)
+{
+    pos.theta = new_theta;
+}
+
+void my_pos_set_theta_fq(Quaterniond q)
+{
+    float siny_cosp = +2.0 * (q.w * q.z + q.x * q.y);
+	float cosy_cosp = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);  
+	pos.theta = atan2(siny_cosp, cosy_cosp);
+}
+
 /**************************************************************************************/
 
 /************************ static function ****************************************/
@@ -195,6 +213,15 @@ static void my_odometry(void)
         pos_update.x = cos(Wc * T) * Rsin_ + sin(Wc * T) * Rcos_ + pos.x - Rsin_;
         pos_update.y = sin(Wc * T) * Rsin_ - cos(Wc * T) * Rcos_ + pos.y + Rcos_;
         pos_update.theta = pos.theta + Wc * T;
+
+        if (pos_update.theta > 2 * MY_PI)
+        {
+            pos_update.theta -= 2 * MY_PI;
+        }
+        if (pos_update.theta < 2 * MY_PI)
+        {
+            pos_update.theta += 2 * MY_PI;
+        }
 
         pos.x = pos_update.x;
         pos.y = pos_update.y;

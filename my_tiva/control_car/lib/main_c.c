@@ -3,6 +3,8 @@
 #include "my_PID.h"
 #include "my_encoder.h"
 #include "my_timer.h"
+#include "my_imu.h"
+#include "my_def.h"
 
 int32_t qeiPosition, x;
 float a,b;
@@ -21,6 +23,7 @@ int main_c(void)
 	// mypwm_setpwm(right_motor, 40 , toi);
 	my_timer_init();
 	my_encoder_init();
+	my_ConfigureIMU();
 
 
 	// my_PID_set_vel_left_sp(10);
