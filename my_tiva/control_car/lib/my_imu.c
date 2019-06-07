@@ -1,14 +1,15 @@
 #include "my_imu.h"
 
-
 float theta;
 char my_char[10];
 float my_float;
 #ifdef XE_1
-float imu_ref[9] = {-180, -135, -90, -45, 0, 45, 90, 135, 180};
+float imu_ref[9] = {0, 32, 55, 84, 115, 250, 313, 340, 360};
+//                 {0, 45, 90,135, 180, 225, 270, 315, 360};
 #endif
 #ifdef XE_2
 float imu_ref[9] = {0, 25.5, 61, 103, 135, 220, 275, 322, 360};
+//                 {0, 45, 90,135, 180, 225, 270, 315, 360};
 #endif
 // float imu_calib[8] = {-180, -135,-90,-45,0,45,90,135,180};
 
@@ -49,11 +50,12 @@ void my_ConfigureIMU(void)
 
 Quaterniond imu_getQuaterniond(void)
 {
-    char temp = 255-UARTCharGet(UART1_BASE);
+    unsigned char temp = 255 - (unsigned char) UARTCharGet(UART1_BASE);
     int temp2 = ((int)temp * 360) / 255;
     theta = temp2;
-    // theta = imu_my_calib(theta);
     theta *= D2R;
+    theta = correct_yaw(theta);
+    // theta = imu_my_calib(theta);
     float cy = cos(theta * 0.5); //cos(yaw * 0.5);
     float sy = sin(theta * 0.5); //sin(yaw * 0.5);
     float cp = 1;                //cos(pitch * 0.5); pitch = 0
@@ -154,6 +156,7 @@ void UARTIntHandler1(void)
 float imu_my_calib(float data)
 {
     float results;
+    data /= D2R;
     if (data < imu_ref[1])
     {
         results = (data - imu_ref[0]) * 45 / (imu_ref[1] - imu_ref[0]) + 0;
@@ -186,5 +189,5 @@ float imu_my_calib(float data)
     {
         results = (data - imu_ref[7]) * 45 / (imu_ref[8] - imu_ref[7]) + 315;
     }
-    return results;
+    return results*D2R;
 }

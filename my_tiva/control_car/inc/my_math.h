@@ -12,8 +12,7 @@ typedef struct
     float w;
 } Quaterniond;
 
-
 Quaterniond my_Y2Q(float yaw); // yaw (rad) to quaternion
-float my_Q2Y( Quaterniond q ); // quaternion to yaw (rad)
+float my_Q2Y(Quaterniond q);   // quaternion to yaw (rad)
+float correct_yaw(float yaw);
 #endif /* __MY_MATH_H_*/
-

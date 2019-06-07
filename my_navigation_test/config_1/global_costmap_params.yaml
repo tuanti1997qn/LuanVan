@@ -10,5 +10,4 @@ global_costmap:
   width: 40.0
   height: 40.0
   map_type: costmap
-  # transform_tolerance: 10000
   transform_tolerance: 10

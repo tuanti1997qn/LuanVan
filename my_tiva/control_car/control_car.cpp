@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+
 extern "C"
 // TivaC specific includes
 {
@@ -52,6 +53,7 @@ char odom[] = "/robot2/odom";
 #endif
 my_pos my_car_pos;
 Quaterniond my_car_quaternion, q_temp_O, q_temp_I;
+float theta_temp, theta_temp_O, theta_temp_I;
 
 huong dir = toi;
 
@@ -64,10 +66,14 @@ int main(void)
 
     // TivaC system clock configuration. Set to 80MHz.
     MAP_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
+    // SysCtlClockSet( SYSCTL_USE_OSC |  SYSCTL_OSC_INT);
+    // SysCtlDelay(SysCtlClockGet());
+    // MAP_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL |  SYSCTL_OSC_INT);
+    //ahihi();
 
     // ROS nodehandle initialization and topic registration
     nh.initNode();
-    // nh.advertise(chatter);
+    // // nh.advertise(chatter);
     nh.subscribe(my_sub_vel);
 
     /************  broadcast tf  *************/
@@ -75,6 +81,7 @@ int main(void)
     /*******************************/
 
     main_c();
+    
 
     // mypwm_setpwm(right_motor, 80, dir);
     // mypwm_setpwm(left_motor, 80, dir);
@@ -120,20 +127,40 @@ int main(void)
             my_car_quaternion = imu_getQuaterniond();
             my_pos_set_theta(imu_getTheta());
         }
-        q_temp_O = my_pos_get_Quaternion();
+
         q_temp_I = imu_getQuaterniond();
+        theta_temp_O = my_car_pos.theta;
+        theta_temp_I = imu_getTheta();
+
 
 #ifdef USE_COMP_FILTER
-        float alpha = 0.5;
-        my_car_quaternion.w = (my_car_quaternion.w + q_temp_O.w) * alpha + q_temp_I.w * (1 - alpha);
-        my_car_quaternion.z = (my_car_quaternion.z + q_temp_O.z) * alpha + q_temp_I.z * (1 - alpha);
-        my_pos_set_theta_fq(my_car_quaternion);
+        float alpha = 0.25;
+
+        theta_temp_I = imu_my_calib(theta_temp_I);
+        if (theta_temp_I - theta_temp_O > 4.7) // neu imu ra goc gan 360, odom ra hon 0 4.7 = 2pi/3
+        {
+            theta_temp_I -= 2 * MY_PI;
+        }
+        else if (theta_temp_O - theta_temp_I > 4.7) // neu odom ra goc gan 360, imu ra hon 0. 4.7 =2pi/3
+        {
+            theta_temp_O -= 2 * MY_PI;
+        }
+
+        theta_temp = theta_temp_O * alpha + theta_temp_I * (1 - alpha);
+        theta_temp = correct_yaw(theta_temp);
+        my_pos_set_theta(theta_temp);
+        my_car_quaternion = my_Y2Q(theta_temp);
 #endif
 
 #ifndef USE_COMP_FILTER
         // my_car_pos.theta = imu_getTheta();
+        
+        theta_temp_I = imu_my_calib(theta_temp_I);
+
+        my_pos_set_theta(theta_temp_I);
+        q_temp_I = my_Y2Q(theta_temp_I);
+
         my_car_quaternion = q_temp_I;
-        my_pos_set_theta(imu_getTheta());
 #endif
 
 #endif

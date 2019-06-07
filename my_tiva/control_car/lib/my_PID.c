@@ -214,14 +214,7 @@ static void my_odometry(void)
         pos_update.y = sin(Wc * T) * Rsin_ - cos(Wc * T) * Rcos_ + pos.y + Rcos_;
         pos_update.theta = pos.theta + Wc * T;
 
-        if (pos_update.theta > 2 * MY_PI)
-        {
-            pos_update.theta -= 2 * MY_PI;
-        }
-        if (pos_update.theta < 2 * MY_PI)
-        {
-            pos_update.theta += 2 * MY_PI;
-        }
+        pos_update.theta = correct_yaw(pos_update.theta);
 
         pos.x = pos_update.x;
         pos.y = pos_update.y;

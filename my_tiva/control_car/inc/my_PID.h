@@ -12,15 +12,15 @@
 
 #ifdef XE_1
 #define XMV 1496              // xung moi vong 374*4(do tiva * 4)
-#define CVB 0.195             // chu vi banh 6.2 cm
-#define D2W 0.172              // distance 2 wheel
-#define OFF_SET 7          // offset xung PWM 7% de chong vung chet
+#define CVB 0.2             // chu vi banh 6.2 cm
+#define D2W 0.19             // distance 2 wheel
+#define OFF_SET 5          // offset xung PWM 7% de chong vung chet
 #endif
 
 #ifdef XE_2
 #define XMV 1496              // xung moi vong 374*4(do tiva * 4)
-#define CVB 0.2             // chu vi banh 7 cm
-#define D2W 0.195              // distance 2 wheel
+#define CVB 0.204             // duong kinh banh 65mm
+#define D2W 0.197              // distance 2 wheel
 #define OFF_SET 7          // offset xung PWM 7% de chong vung chet
 #endif
 

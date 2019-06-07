@@ -20,7 +20,7 @@ Quaterniond my_Y2Q(float yaw) // yaw to quaternion
 }
 float my_Q2Y( Quaterniond q ) // quaternion to yaw(rad)
 {
-    float roll, pitch, yaw;
+    float yaw;
     // // roll (x-axis rotation)
 	// float sinr_cosp = +2.0 * (q.w * q.x + q.y * q.z);
 	// float cosr_cosp = +1.0 - 2.0 * (q.x * q.x + q.y * q.y);
@@ -37,5 +37,18 @@ float my_Q2Y( Quaterniond q ) // quaternion to yaw(rad)
 	float siny_cosp = +2.0 * (q.w * q.z + q.x * q.y);
 	float cosy_cosp = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);  
 	yaw = atan2(siny_cosp, cosy_cosp);
+    return yaw;
+}
+
+float correct_yaw(float yaw)
+{
+    if (yaw < 0)
+    {
+        yaw += 2*MY_PI;
+    }
+    if (yaw > 2*MY_PI)
+    {
+        yaw -= 2*MY_PI;
+    }
     return yaw;
 }
