@@ -27,14 +27,14 @@ int main(int argc, char **argv)
 
   // init cho robot1
   ros::NodeHandle r1_nht, r1_nhr, r1_nhscan;
-  r1_pub = r1_nht.advertise<geometry_msgs::Twist>("/robot1/cmd_temp_vel", 1000);
-  ros::Subscriber r1_sub = r1_nhr.subscribe("/robot1/c_cmd_temp_vel", 1000, Robot1_Callback);
+  r1_pub = r1_nht.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
+  ros::Subscriber r1_sub = r1_nhr.subscribe("/robot1/c_cmd_vel", 1000, Robot1_Callback);
   ros::Subscriber r1_sub_Scan = r1_nhscan.subscribe("/robot1/scan", 1000, Robot1_Scan_Callback);
 
   // init cho robot2
   ros::NodeHandle r2_nht, r2_nhr;
-  r2_pub = r2_nht.advertise<geometry_msgs::Twist>("/robot2/cmd_temp_vel", 1000);
-  ros::Subscriber r2_sub = r2_nhr.subscribe("/robot2/c_cmd_temp_vel", 1000, Robot2_Callback);
+  r2_pub = r2_nht.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
+  ros::Subscriber r2_sub = r2_nhr.subscribe("/robot2/c_cmd_vel", 1000, Robot2_Callback);
 
   ros::Rate rate(10.0);
   while (node.ok())
@@ -59,25 +59,40 @@ int main(int argc, char **argv)
 
     // test zone
     // robot 1 move
+            float x = transform.getOrigin().x();
+        float y = transform.getOrigin().y();
+        float m_dist = sqrt(x*x+y*y);
+    // std::cout <<x << std::endl;
+    // std::cout <<y << std::endl;
+    // std::cout <<m_dist << std::endl;
     geometry_msgs::Twist my_vel;
-    if (is_available(transform, 0.8)) // >0.8
+    if (m_dist == 0) {}// >0.5
+    else if (m_dist > 0.5) // >0.5
     {
+		//my_vel.linear.x = 0;
+		//r1_pub.publish(my_vel);
+
     }
-    else if (is_available(transform, 0.6)) // >0.6 , <0.8
+    else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.4 , <0.5
     {
       /* code */
-        float x = transform.getOrigin().x();
-        float y = transform.getOrigin().y();
-        std::cout <<"khoang cach giua 2 xe:"<< x * x + y * y << std::endl;
-      std::cout << "lui tranh xe"<< std::endl;
-      my_vel.linear.x = 0;
-      r1_pub.publish(my_vel);
+        std::cout <<"khoang cach giua 2 xe:"<< m_dist<< std::endl;
+        std::cout << "lui tranh xe"<< std::endl;
+        // std::cout << ">0.4 <0.5"<<std::endl;
+        my_vel.linear.x = 0;
+        my_vel.angular.z = 0;
+        r1_pub.publish(my_vel);
     }
     else // <0.6
     {
-      std::cout << "lui tranh xe"<< std::endl;
-      my_vel.linear.x = -0.2;
-      r1_pub.publish(my_vel);
+        //       float x = transform.getOrigin().x();
+        // float y = transform.getOrigin().y();
+        // std::cout << "<0.4"<<std::endl;
+		std::cout <<"khoang cach giua 2 xe:"<< m_dist << std::endl;
+        std::cout << "lui tranh xe"<< std::endl;
+        my_vel.linear.x = -0.2;
+        my_vel.angular.z = 0;
+        r1_pub.publish(my_vel);
     }
 
 
@@ -94,21 +109,26 @@ void Robot1_Callback(const geometry_msgs::Twist::ConstPtr &msg)
   // tf::TransformListener listener;
   // listener.lookupTransform("/robot1/base_footprint", "/robot2/base_footprint", ros::Time(0), transform);
   geometry_msgs::Twist my_vel;
-  if (is_available(transform, 0.8)) // >0.8
+              float x = transform.getOrigin().x();
+        float y = transform.getOrigin().y();
+        float m_dist = sqrt(x*x+y*y);
+  if (m_dist > 0.5) // >0.8
   {
     r1_pub.publish(msg);
     std::cout << "robot 1 move" << std::endl;
   }
-  else if (is_available(transform, 0.6)) // >0.6 , <0.8
+  else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.6 , <0.8
   {
     /* code */
     my_vel.linear.x = 0;
+    my_vel.angular.z = 0;
     r1_pub.publish(my_vel);
   }
   else // <0.6
   {
 
-    my_vel.linear.x = -0.2;
+    my_vel.linear.x = -0.5;
+    my_vel.angular.z = 0;
     r1_pub.publish(my_vel);
   }
 }
@@ -117,11 +137,11 @@ void Robot2_Callback(const geometry_msgs::Twist::ConstPtr &msg)
 {
   // tf::TransformListener listener;
   // listener.lookupTransform("/robot1/base_footprint", "/robot2/base_footprint", ros::Time(0), transform);
-  if (is_available(transform, 0.5))
-  {
+  //if (is_available(transform, 0.5))
+  //{
     r2_pub.publish(msg);
     std::cout << "robot 2 move" << std::endl;
-  }
+  //}
 }
 
 // int is_available(tf::StampedTransform p1, tf::StampedTransform p2, float min_dist)

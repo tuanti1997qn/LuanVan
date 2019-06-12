@@ -66,9 +66,10 @@ int main(void)
 
     // TivaC system clock configuration. Set to 80MHz.
     MAP_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
+    // MAP_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL  | SYSCTL_OSC_INT);
     // SysCtlClockSet( SYSCTL_USE_OSC |  SYSCTL_OSC_INT);
     // SysCtlDelay(SysCtlClockGet());
-    // MAP_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL |  SYSCTL_OSC_INT);
+    // MAP_SysCtlClockSet(SYSCTL_XTAL_25MHZ | SYSCTL_USE_OSC|  SYSCTL_OSC_MAIN);
     //ahihi();
 
     // ROS nodehandle initialization and topic registration
@@ -134,7 +135,7 @@ int main(void)
 
 
 #ifdef USE_COMP_FILTER
-        float alpha = 0.25;
+        float alpha = MY_ALPHA;
 
         theta_temp_I = imu_my_calib(theta_temp_I);
         if (theta_temp_I - theta_temp_O > 4.7) // neu imu ra goc gan 360, odom ra hon 0 4.7 = 2pi/3

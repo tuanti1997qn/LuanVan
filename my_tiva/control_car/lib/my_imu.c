@@ -4,11 +4,11 @@ float theta;
 char my_char[10];
 float my_float;
 #ifdef XE_1
-float imu_ref[9] = {0, 32, 55, 84, 115, 250, 313, 340, 360};
+float imu_ref[9] = {-36, -12, 9, 33, 52, 277, 282, 302, 324};
 //                 {0, 45, 90,135, 180, 225, 270, 315, 360};
 #endif
 #ifdef XE_2
-float imu_ref[9] = {0, 25.5, 61, 103, 135, 220, 275, 322, 360};
+float imu_ref[9] = {-129, -93, -56, -18, 38, 92, 144, 197, 231};
 //                 {0, 45, 90,135, 180, 225, 270, 315, 360};
 #endif
 // float imu_calib[8] = {-180, -135,-90,-45,0,45,90,135,180};
@@ -157,6 +157,14 @@ float imu_my_calib(float data)
 {
     float results;
     data /= D2R;
+    if(data < imu_ref[0])
+    {
+        data+= 360;
+    }
+    if(data>360+imu_ref[0])
+    {
+        data -= 360;
+    }
     if (data < imu_ref[1])
     {
         results = (data - imu_ref[0]) * 45 / (imu_ref[1] - imu_ref[0]) + 0;
@@ -189,5 +197,15 @@ float imu_my_calib(float data)
     {
         results = (data - imu_ref[7]) * 45 / (imu_ref[8] - imu_ref[7]) + 315;
     }
+
+    if(data < 0)
+    {
+        data+= 360;
+    }
+    if(data>360)
+    {
+        data -= 360;
+    }
+
     return results*D2R;
 }

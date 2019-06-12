@@ -43,7 +43,7 @@
       <param name="move_base/DWAPlannerROS/xy_goal_tolerance" value="0.2"/>
 
       <remap from="map" to="/map"/>
-      <!-- <remap from="robot2/cmd_vel" to="robot2/c_cmd_vel"/> -->
+      <remap from="robot2/cmd_vel" to="robot2/c_cmd_vel"/>
     </node>
 </group>
 
@@ -69,7 +69,7 @@
       <param name="move_base/DWAPlannerROS/xy_goal_tolerance" value="0.2"/>
 
       <remap from="map" to="/map"/>
-      <!-- <remap from="robot1/cmd_vel" to="robot1/c_cmd_vel"/> -->
+      <remap from="robot1/cmd_vel" to="robot1/c_cmd_vel"/>
     </node>
 </group>
 
