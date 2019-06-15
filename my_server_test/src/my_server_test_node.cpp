@@ -14,6 +14,7 @@ ros::Publisher r1_pub, r2_pub;
 tf::StampedTransform transform, transform_x1_g, transform_x2_g;
 
 sensor_msgs::LaserScan my_scan;
+int my_luixe_dir = 0; // 0: lui thang, 1:  trai ,2 : phai, 3 tien len
 
 int main(int argc, char **argv)
 {
@@ -59,44 +60,67 @@ int main(int argc, char **argv)
 
     // test zone
     // robot 1 move
-            float x = transform.getOrigin().x();
-        float y = transform.getOrigin().y();
-        float m_dist = sqrt(x*x+y*y);
+    float x = transform.getOrigin().x();
+    float y = transform.getOrigin().y();
+    float m_dist = sqrt(x * x + y * y);
     // std::cout <<x << std::endl;
     // std::cout <<y << std::endl;
     // std::cout <<m_dist << std::endl;
     geometry_msgs::Twist my_vel;
-    if (m_dist == 0) {}// >0.5
+
+    if (m_dist == 0)
+    {
+    }                      // >0.5
     else if (m_dist > 0.5) // >0.5
     {
-		//my_vel.linear.x = 0;
-		//r1_pub.publish(my_vel);
+      //my_vel.linear.x = 0;
+      //r1_pub.publish(my_vel);
+    }
 
-    }
-    else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.4 , <0.5
-    {
-      /* code */
-        std::cout <<"khoang cach giua 2 xe:"<< m_dist<< std::endl;
-        std::cout << "lui tranh xe"<< std::endl;
-        // std::cout << ">0.4 <0.5"<<std::endl;
-        my_vel.linear.x = 0;
-        my_vel.angular.z = 0;
-        r1_pub.publish(my_vel);
-    }
+    // else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.4 , <0.5
+    // {
+    //   /* code */
+    //     std::cout <<"khoang cach giua 2 xe:"<< m_dist<< std::endl;
+    //     std::cout << "lui tranh xe"<< std::endl;
+    //     // std::cout << ">0.4 <0.5"<<std::endl;
+    //     my_vel.linear.x = 0;
+    //     my_vel.angular.z = 0;
+    //     r1_pub.publish(my_vel);
+    // }
     else // <0.6
     {
-        //       float x = transform.getOrigin().x();
-        // float y = transform.getOrigin().y();
-        // std::cout << "<0.4"<<std::endl;
-		std::cout <<"khoang cach giua 2 xe:"<< m_dist << std::endl;
-        std::cout << "lui tranh xe"<< std::endl;
-        my_vel.linear.x = -0.2;
+      //       float x = transform.getOrigin().x();
+      // float y = transform.getOrigin().y();
+      // std::cout << "<0.4"<<std::endl;
+      // std::cout << "khoang cach giua 2 xe:" << m_dist << std::endl;
+      // std::cout << "lui tranh xe" << std::endl;
+      std::cout << my_luixe_dir << std::endl;
+      if (my_luixe_dir == 0)
+      {
+        /* code */
+        my_vel.linear.x = -0.5;
         my_vel.angular.z = 0;
         r1_pub.publish(my_vel);
+      }
+      else if (my_luixe_dir == 1)
+      {
+        my_vel.linear.x = 0;
+        my_vel.angular.z = 0.5;
+        r1_pub.publish(my_vel);
+      }
+      else if (my_luixe_dir == 2)
+      {
+        my_vel.linear.x = 0;
+        my_vel.angular.z = -0.5;
+        r1_pub.publish(my_vel);
+      }
+      else if (my_luixe_dir == 3)
+      {
+        my_vel.linear.x = 0.5;
+        my_vel.angular.z = 0;
+        r1_pub.publish(my_vel);
+      }
     }
-
-
-
 
     ros::spinOnce();
     // rate.sleep();
@@ -109,27 +133,41 @@ void Robot1_Callback(const geometry_msgs::Twist::ConstPtr &msg)
   // tf::TransformListener listener;
   // listener.lookupTransform("/robot1/base_footprint", "/robot2/base_footprint", ros::Time(0), transform);
   geometry_msgs::Twist my_vel;
-              float x = transform.getOrigin().x();
-        float y = transform.getOrigin().y();
-        float m_dist = sqrt(x*x+y*y);
+  float x = transform.getOrigin().x();
+  float y = transform.getOrigin().y();
+  float m_dist = sqrt(x * x + y * y);
   if (m_dist > 0.5) // >0.8
   {
     r1_pub.publish(msg);
     std::cout << "robot 1 move" << std::endl;
   }
-  else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.6 , <0.8
-  {
-    /* code */
-    my_vel.linear.x = 0;
-    my_vel.angular.z = 0;
-    r1_pub.publish(my_vel);
-  }
   else // <0.6
   {
-
-    my_vel.linear.x = -0.5;
-    my_vel.angular.z = 0;
-    r1_pub.publish(my_vel);
+    if (my_luixe_dir == 0)
+    {
+      /* code */
+      my_vel.linear.x = -0.5;
+      my_vel.angular.z = 0;
+      r1_pub.publish(my_vel);
+    }
+    else if (my_luixe_dir == 1)
+    {
+      my_vel.linear.x = 0;
+      my_vel.angular.z = 0.5;
+      r1_pub.publish(my_vel);
+    }
+    else if (my_luixe_dir == 2)
+    {
+      my_vel.linear.x = 0;
+      my_vel.angular.z = -0.5;
+      r1_pub.publish(my_vel);
+    }
+    else if (my_luixe_dir == 3)
+    {
+      my_vel.linear.x = 0.5;
+      my_vel.angular.z = 0;
+      r1_pub.publish(my_vel);
+    }
   }
 }
 
@@ -139,8 +177,21 @@ void Robot2_Callback(const geometry_msgs::Twist::ConstPtr &msg)
   // listener.lookupTransform("/robot1/base_footprint", "/robot2/base_footprint", ros::Time(0), transform);
   //if (is_available(transform, 0.5))
   //{
+  geometry_msgs::Twist my_vel;
+  float x = transform.getOrigin().x();
+  float y = transform.getOrigin().y();
+  float m_dist = sqrt(x * x + y * y);
+  if (m_dist > 0.5) // >0.8
+  {
     r2_pub.publish(msg);
-    std::cout << "robot 2 move" << std::endl;
+    //std::cout << "robot 2 move" << std::endl;
+  }
+  else
+  {
+    my_vel.linear.x = -0.2;
+    my_vel.angular.z = 0;
+    r2_pub.publish(my_vel);
+  }
   //}
 }
 
@@ -175,5 +226,51 @@ void Robot1_Scan_Callback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
   my_scan.angle_increment = msg->angle_increment;
   my_scan.ranges = msg->ranges;
-  // std::cout << msg->angle_increment << std::endl;
+  // std::cout << msg->angle_increment *360 /(3.14159*2) << std::endl;
+  // std::cout << my_scan.ranges[360 - 90] << std::endl;
+  int cnt_temp;
+  int flag = 0;
+  my_luixe_dir = 0;
+  for (cnt_temp = 150; cnt_temp < 170; cnt_temp++)
+  {
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+  }
+  if (flag)
+  {
+    my_luixe_dir = 1; // vat can ben trai, ne trai
+  }
+  //////////////////////
+  flag = 0;
+  for (cnt_temp = 190; cnt_temp < 210; cnt_temp++)
+  {
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+  }
+  if (flag)
+  {
+    if (my_luixe_dir)
+    {
+      my_luixe_dir = 3; // vat can hai ben, tien len
+    }
+    else
+    {
+      my_luixe_dir = 2; // vat can ben phai, re phai
+    }
+  }
+  //////////////////////////////
+  flag = 0;
+  for (cnt_temp = 170; cnt_temp < 190; cnt_temp++)
+  {
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+  }
+  if (flag)
+  {
+    if (my_luixe_dir == 0)
+    {
+      my_luixe_dir = 1; // neu ko can hai ben can o giua mac dinh re trai
+    }
+    if (my_luixe_dir == 3)
+    {
+      my_luixe_dir = 1; // neu can hai ben can luon giua thi mac dinh quay san trai
+    }
+  }
 }
