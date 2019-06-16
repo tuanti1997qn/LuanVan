@@ -14,8 +14,9 @@ ros::Publisher r1_pub, r2_pub;
 tf::StampedTransform transform, transform_x1_g, transform_x2_g;
 
 sensor_msgs::LaserScan my_scan;
+int my_sw_flag = 0;
 int my_luixe_dir = 0; // 0: lui thang, 1:  trai ,2 : phai, 3 tien len
-
+double my_inf = std::numeric_limits<double>::infinity();
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "my_tf_listener");
@@ -28,16 +29,16 @@ int main(int argc, char **argv)
 
   // init cho robot1
   ros::NodeHandle r1_nht, r1_nhr, r1_nhscan;
-  r1_pub = r1_nht.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1000);
-  ros::Subscriber r1_sub = r1_nhr.subscribe("/robot1/c_cmd_vel", 1000, Robot1_Callback);
-  ros::Subscriber r1_sub_Scan = r1_nhscan.subscribe("/robot1/scan", 1000, Robot1_Scan_Callback);
+  r1_pub = r1_nht.advertise<geometry_msgs::Twist>("/robot1/cmd_vel", 1);
+  ros::Subscriber r1_sub = r1_nhr.subscribe("/robot1/c_cmd_vel", 1, Robot1_Callback);
+  ros::Subscriber r1_sub_Scan = r1_nhscan.subscribe("/robot1/scan", 1, Robot1_Scan_Callback);
 
   // init cho robot2
   ros::NodeHandle r2_nht, r2_nhr;
-  r2_pub = r2_nht.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1000);
-  ros::Subscriber r2_sub = r2_nhr.subscribe("/robot2/c_cmd_vel", 1000, Robot2_Callback);
+  r2_pub = r2_nht.advertise<geometry_msgs::Twist>("/robot2/cmd_vel", 1);
+  ros::Subscriber r2_sub = r2_nhr.subscribe("/robot2/c_cmd_vel", 1, Robot2_Callback);
 
-  ros::Rate rate(10.0);
+  ros::Rate rate(5);
   while (node.ok())
   {
     try
@@ -75,18 +76,30 @@ int main(int argc, char **argv)
     {
       //my_vel.linear.x = 0;
       //r1_pub.publish(my_vel);
+      if (my_sw_flag == 1)
+      {
+        my_sw_flag = 0;
+        my_vel.linear.x = 0;
+        my_vel.angular.z = 0;
+        r1_pub.publish(my_vel);
+      }
     }
 
-    // else if ((m_dist<0.5)&&(m_dist>0.4)) // >0.4 , <0.5
-    // {
-    //   /* code */
-    //     std::cout <<"khoang cach giua 2 xe:"<< m_dist<< std::endl;
-    //     std::cout << "lui tranh xe"<< std::endl;
-    //     // std::cout << ">0.4 <0.5"<<std::endl;
-    //     my_vel.linear.x = 0;
-    //     my_vel.angular.z = 0;
-    //     r1_pub.publish(my_vel);
-    // }
+    else if ((m_dist < 0.5) && (m_dist > 0.35)) // >0.4 , <0.5
+    {
+      /* code */
+      // std::cout <<"khoang cach giua 2 xe:"<< m_dist<< std::endl;
+      // std::cout << "lui tranh xe"<< std::endl;
+      // std::cout << ">0.4 <0.5"<<std::endl;
+      static int cnt_temp_yeah_ahihi = 0;
+      if (cnt_temp_yeah_ahihi > 10000)
+      {
+        cnt_temp_yeah_ahihi = 0;
+        my_vel.linear.x = 0;
+        my_vel.angular.z = 0;
+        r1_pub.publish(my_vel);
+      }
+    }
     else // <0.6
     {
       //       float x = transform.getOrigin().x();
@@ -94,31 +107,39 @@ int main(int argc, char **argv)
       // std::cout << "<0.4"<<std::endl;
       // std::cout << "khoang cach giua 2 xe:" << m_dist << std::endl;
       // std::cout << "lui tranh xe" << std::endl;
+
+      my_sw_flag = 1;
       std::cout << my_luixe_dir << std::endl;
-      if (my_luixe_dir == 0)
+      static int cnt_temp_yeah = 0;
+      std::cout << cnt_temp_yeah++ << std::endl;
+      if (cnt_temp_yeah > 10000)
       {
-        /* code */
-        my_vel.linear.x = -0.5;
-        my_vel.angular.z = 0;
-        r1_pub.publish(my_vel);
-      }
-      else if (my_luixe_dir == 1)
-      {
-        my_vel.linear.x = 0;
-        my_vel.angular.z = 0.5;
-        r1_pub.publish(my_vel);
-      }
-      else if (my_luixe_dir == 2)
-      {
-        my_vel.linear.x = 0;
-        my_vel.angular.z = -0.5;
-        r1_pub.publish(my_vel);
-      }
-      else if (my_luixe_dir == 3)
-      {
-        my_vel.linear.x = 0.5;
-        my_vel.angular.z = 0;
-        r1_pub.publish(my_vel);
+        cnt_temp_yeah = 0;
+        if (my_luixe_dir == 0)
+        {
+          /* code */
+          my_vel.linear.x = -0.3;
+          my_vel.angular.z = 0;
+          r1_pub.publish(my_vel);
+        }
+        else if (my_luixe_dir == 1)
+        {
+          my_vel.linear.x = 0;
+          my_vel.angular.z = 0.3;
+          r1_pub.publish(my_vel);
+        }
+        else if (my_luixe_dir == 2)
+        {
+          my_vel.linear.x = 0;
+          my_vel.angular.z = -0.3;
+          r1_pub.publish(my_vel);
+        }
+        else if (my_luixe_dir == 3)
+        {
+          my_vel.linear.x = 0.3;
+          my_vel.angular.z = 0;
+          r1_pub.publish(my_vel);
+        }
       }
     }
 
@@ -141,34 +162,40 @@ void Robot1_Callback(const geometry_msgs::Twist::ConstPtr &msg)
     r1_pub.publish(msg);
     std::cout << "robot 1 move" << std::endl;
   }
-  else // <0.6
-  {
-    if (my_luixe_dir == 0)
-    {
-      /* code */
-      my_vel.linear.x = -0.5;
-      my_vel.angular.z = 0;
-      r1_pub.publish(my_vel);
-    }
-    else if (my_luixe_dir == 1)
-    {
-      my_vel.linear.x = 0;
-      my_vel.angular.z = 0.5;
-      r1_pub.publish(my_vel);
-    }
-    else if (my_luixe_dir == 2)
-    {
-      my_vel.linear.x = 0;
-      my_vel.angular.z = -0.5;
-      r1_pub.publish(my_vel);
-    }
-    else if (my_luixe_dir == 3)
-    {
-      my_vel.linear.x = 0.5;
-      my_vel.angular.z = 0;
-      r1_pub.publish(my_vel);
-    }
-  }
+  // else if ((m_dist < 0.5) && (m_dist > 0.4))
+  // {
+  //     my_vel.linear.x = 0;
+  //     my_vel.angular.z = 0;
+  //     r1_pub.publish(my_vel);
+  // }
+  // else // <0.6
+  // {
+  //   if (my_luixe_dir == 0)
+  //   {
+  //     /* code */
+  //     my_vel.linear.x = -0.3;
+  //     my_vel.angular.z = 0;
+  //     r1_pub.publish(my_vel);
+  //   }
+  //   else if (my_luixe_dir == 1)
+  //   {
+  //     my_vel.linear.x = 0;
+  //     my_vel.angular.z = 0.3;
+  //     r1_pub.publish(my_vel);
+  //   }
+  //   else if (my_luixe_dir == 2)
+  //   {
+  //     my_vel.linear.x = 0;
+  //     my_vel.angular.z = -0.3;
+  //     r1_pub.publish(my_vel);
+  //   }
+  //   else if (my_luixe_dir == 3)
+  //   {
+  //     my_vel.linear.x = 0.3;
+  //     my_vel.angular.z = 0;
+  //     r1_pub.publish(my_vel);
+  //   }
+  // }
 }
 
 void Robot2_Callback(const geometry_msgs::Twist::ConstPtr &msg)
@@ -228,12 +255,14 @@ void Robot1_Scan_Callback(const sensor_msgs::LaserScan::ConstPtr &msg)
   my_scan.ranges = msg->ranges;
   // std::cout << msg->angle_increment *360 /(3.14159*2) << std::endl;
   // std::cout << my_scan.ranges[360 - 90] << std::endl;
+  // std::cout << my_inf << std::endl;
+
   int cnt_temp;
   int flag = 0;
   my_luixe_dir = 0;
   for (cnt_temp = 150; cnt_temp < 170; cnt_temp++)
   {
-    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.25) || (my_scan.ranges[cnt_temp] == my_inf);
   }
   if (flag)
   {
@@ -243,7 +272,7 @@ void Robot1_Scan_Callback(const sensor_msgs::LaserScan::ConstPtr &msg)
   flag = 0;
   for (cnt_temp = 190; cnt_temp < 210; cnt_temp++)
   {
-    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.25) || (my_scan.ranges[cnt_temp] == my_inf);
   }
   if (flag)
   {
@@ -260,7 +289,7 @@ void Robot1_Scan_Callback(const sensor_msgs::LaserScan::ConstPtr &msg)
   flag = 0;
   for (cnt_temp = 170; cnt_temp < 190; cnt_temp++)
   {
-    flag = flag || (my_scan.ranges[cnt_temp] < 0.4);
+    flag = flag || (my_scan.ranges[cnt_temp] < 0.25) || (my_scan.ranges[cnt_temp] == my_inf);
   }
   if (flag)
   {
